@@ -12,8 +12,10 @@ require (
 	github.com/minio/md5-simd v1.1.2 // indirect
 	github.com/minio/minio-go/v7 v7.0.47 // indirect
 	github.com/minio/sha256-simd v1.0.0 // indirect
+	github.com/rabbitmq/amqp091-go v1.6.0 // indirect
 	github.com/rs/xid v1.4.0 // indirect
 	github.com/sirupsen/logrus v1.9.0 // indirect
+	github.com/wagslane/go-rabbitmq v0.11.1 // indirect
 	gopkg.in/ini.v1 v1.66.6 // indirect
 )
 

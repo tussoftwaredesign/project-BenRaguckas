@@ -13,6 +13,7 @@ import (
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 func init() {
@@ -36,10 +37,12 @@ func newDefaultMinioClient() *minio.Client {
 	return minioClient
 }
 
+// api check
 func testDefault(c *gin.Context) {
 	c.String(http.StatusOK, fmt.Sprintf("default test api"))
 }
 
+// Save file to local directory
 func testSaveFile(c *gin.Context, identifier string) {
 	file, err := c.FormFile(identifier)
 	if err != nil {
@@ -57,6 +60,7 @@ func testSaveFile(c *gin.Context, identifier string) {
 
 }
 
+// simple response from minio
 func testMinioHealth(c *gin.Context) {
 	minioClient := newDefaultMinioClient()
 	cancelFn, err := minioClient.HealthCheck(5 * time.Second)
@@ -69,6 +73,8 @@ func testMinioHealth(c *gin.Context) {
 	}
 }
 
+
+// Add file to specified bucket
 func testMinioAddFile(c *gin.Context, identifier string, bucket_name string) {
 	minioClient := newDefaultMinioClient()
 	fileHeaders, err := c.FormFile(identifier)
@@ -88,6 +94,7 @@ func testMinioAddFile(c *gin.Context, identifier string, bucket_name string) {
 	}
 }
 
+// Create bucket
 func testMinioCreateBucket(c *gin.Context, bucket_name string) {
 	minioClient := newDefaultMinioClient()
 	err := minioClient.MakeBucket(context.Background(), bucket_name, minio.MakeBucketOptions{})
@@ -100,7 +107,51 @@ func testMinioCreateBucket(c *gin.Context, bucket_name string) {
 
 }
 
-func testMinio(c *gin.Context) {
+func testMQDial(c *gin.Context) *amqp.Connection {
+	conn, err := amqp.Dial("amqp://guest:guest@localhost:30034/")
+	if err != nil {
+		c.String(http.StatusInternalServerError, "Failed to dial to rabbitMQ:\n"+err.Error())
+		return nil
+	}
+	return conn
+}
+
+func testMQPublish(c *gin.Context, body string) {
+	conn := testMQDial(c)
+	if conn == nil {
+		return
+	}
+	ch, err := conn.Channel()
+	if err != nil {
+		c.String(http.StatusInternalServerError, "Failed to create rabbitMQ connection:\n"+err.Error())
+		return
+	}
+	defer ch.Close()
+	defer conn.Close()
+
+	// timeout context
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	// publish
+	err = ch.PublishWithContext(
+		ctx,
+		"",         //	Exchange
+		"test-que", //	Que name
+		false,
+		false,
+		amqp.Publishing{
+			ContentType: "text/plain",
+			Body:        []byte(body),
+		},
+	)
+	if err != nil {
+		c.String(http.StatusInternalServerError, "Failed to publish message:\n"+err.Error())
+	}
+}
+
+// Example method
+func testMinio(_ *gin.Context) {
 	ctx := context.Background()
 	endpoint := "localhost:30036"
 	accessKeyID := "Q3AM3UQ867SPQQA43P2F"

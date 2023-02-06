@@ -1,0 +1,142 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://www.test.org"
+    xmlns="http://www.test.org"
+    elementFormDefault="qualified">
+    <!-- Root list -->
+    <xsd:element name="apilist">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="default-entrypoints" minOccurs="1" maxOccurs="1">
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element name="default-get" type="xsd:string" minOccurs="1" maxOccurs="1" />
+                            <xsd:element name="default-post" type="xsd:string" minOccurs="1" maxOccurs="1" />
+                            <xsd:element name="default-put" type="xsd:string" minOccurs="1" maxOccurs="1" />
+                            <!-- <xsd:element ref="default-delete" minOccurs="1" maxOccurs="1" /> -->
+                        </xsd:sequence>
+                    </xsd:complexType>
+                </xsd:element>
+                <xsd:sequence>
+                    <xsd:element ref="api" minOccurs="1" maxOccurs="unbounded" />
+                </xsd:sequence>
+                <xsd:sequence>
+                    <xsd:element ref="definition-mapping" minOccurs="0" maxOccurs="1" />
+                </xsd:sequence>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <!-- API definition  -->
+    <xsd:element name="api">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="uri" minOccurs="1" maxOccurs="1" />
+                <xsd:element name="function-byname" type="function" minOccurs="0" maxOccurs="unbounded" />
+                <xsd:element name="returning-function" type="xsd:string" minOccurs="0" maxOccurs="1" />
+                <!-- Find way to include predefined process here again -->
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <!-- Mapping definition  -->
+    <xsd:element name="definition-mapping">
+        <xsd:complexType>
+            <xsd:sequence>
+                <!-- Find way to include predefined process here again -->
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <!-- PROCESS = utilizes body -->
+    <xsd:element name="predefined-process">
+        <xsd:complexType>
+            <xsd:sequence>
+
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <!-- PROCESS = utilizes body -->
+    <xsd:element name="user-process">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="sourceUri" type="xsd:string" />
+                <xsd:element name="destUri" type="xsd:string" />
+                <xsd:element ref="keyMapping" minOccurs="1" maxOccurs="unbounded" />
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <!-- URI definition -->
+    <xsd:element name="uri">
+        <xsd:complexType>
+            <xsd:simpleContent>
+                <xsd:extension base="xsd:string">
+                    <xsd:attribute name="method" type="method" use="required" />
+                    <xsd:attribute name="use_params" type="xsd:boolean" use="required" />
+                    <xsd:attribute name="path_params" type="xsd:string" use="optional" />
+                    <xsd:attribute name="use_body" type="xsd:boolean" use="required" />
+                    <xsd:attribute name="body_items" type="xsd:string" use="optional" />
+                </xsd:extension>
+            </xsd:simpleContent>
+        </xsd:complexType>
+    </xsd:element>
+    
+    <!-- URI definition -->
+    <xsd:element name="function-extra">
+        <xsd:complexType>
+            <xsd:simpleContent>
+                <xsd:extension base="xsd:string">
+                    <xsd:attribute name="params" type="xsd:string" use="required" />
+                </xsd:extension>
+            </xsd:simpleContent>
+        </xsd:complexType>
+    </xsd:element>
+
+    <!-- KeyMapping definition -->
+    
+    <xsd:element name="keyMapping">
+        <xsd:complexType>
+            <xsd:simpleContent>
+                <xsd:extension base="xsd:string">
+                    <xsd:attribute name="action" type="xsd:string" use="required" />
+                </xsd:extension>
+            </xsd:simpleContent>
+        </xsd:complexType>
+    </xsd:element>
+    <!-- <xsd:element name="uri">
+        <xsd:simpleType>
+            <xsd:restriction base="xsd:string" />
+        </xsd:simpleType>
+    </xsd:element> -->
+    <!-- METHOD attribute definition -->
+    <xsd:simpleType name="method">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="GET" />
+            <xsd:enumeration value="POST" />
+            <xsd:enumeration value="PUT" />
+            <xsd:enumeration value="DELETE" />
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    
+    <!-- METHOD attribute definition -->
+    <xsd:simpleType name="function">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="listItems" />
+            <xsd:enumeration value="getItem" />
+            <xsd:enumeration value="putItem" />
+            <xsd:enumeration value="pushItem" />
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <!-- Procedure definition -->
+    <!-- This will need to list all invokable methods -->
+    <xsd:element name="procedure">
+        <xsd:simpleType>
+            <xsd:restriction base="xsd:string">
+                <xsd:enumeration value="list-items" />
+            </xsd:restriction>
+        </xsd:simpleType>
+    </xsd:element>
+
+</xsd:schema>

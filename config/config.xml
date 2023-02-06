@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<apilist xmlns="http://www.test.org"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.test.org config.xsd">
+    <default-entrypoints>
+        <default-get>default/get/:a/:b</default-get>
+        <default-post>default/post</default-post>
+        <default-put>default/put/:a</default-put>
+    </default-entrypoints>
+    <api>
+        <uri method="GET" use_params="true" use_body="false" path_params="bucket item">/custom/:bucket/:item</uri>
+        <function-byname>getItem</function-byname>
+    </api>
+    <api>
+        <uri method="GET" use_params="true" use_body="false" path_params="bucket">/custom/:bucket</uri>
+        <function-byname>listItems</function-byname>
+    </api>
+    <api>
+        <uri method="POST" use_params="false" use_body="true" body_items="file">/custom</uri>
+        <function-byname>pushItem</function-byname>
+    </api>
+    <api>
+        <uri method="PUT" use_params="true" path_params="bucket" use_body="true" body_items="file">/custom/:bucket</uri>
+        <function-byname>putItem</function-byname>
+    </api>
+</apilist>
