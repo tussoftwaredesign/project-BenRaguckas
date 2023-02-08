@@ -1,17 +1,17 @@
-apiVersion: v1
-kind: Service
-metadata:
-  name: rabbitmq-external
-spec:
-  selector:
-    app: rabbitmq
-  type: LoadBalancer
-  ports:
-    - name: api-port
-      protocol: TCP
-      port: 5672
-      targetPort: 5672
-    - name: manage-port
-      protocol: TCP
-      port: 15672
-      targetPort: 15672
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: rabbitmq-loadbalancer
+# spec:
+#   selector:
+#     app: rabbitmq
+#   type: LoadBalancer
+#   ports:
+#     - name: api-port
+#       protocol: TCP
+#       port: 5672
+#       targetPort: 5672
+#     - name: manage-port
+#       protocol: TCP
+#       port: 15670
+#       targetPort: 15672

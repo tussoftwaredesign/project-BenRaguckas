@@ -4,6 +4,7 @@ metadata:
   labels:
     app: rabbitmq
   name: rabbitmq
+  namespace: msgb
 spec:
   replicas: 1
   selector:

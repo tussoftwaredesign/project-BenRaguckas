@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: go-api
+  name: go-api-service
+spec:
+  clusterIP: 10.100.10.13
+  type: NodePort
+  ports:
+    - name: "port-1"
+      port: 8080
+      targetPort: 8080
+      nodePort: 30030
+  selector:
+    app: go-api

@@ -3,16 +3,18 @@ kind: Service
 metadata:
   labels:
     app: rabbitmq
-  name: rabbitmq
+  name: rmq-service
 spec:
+  clusterIP: 10.100.10.12
+  type: NodePort
   ports:
     - name: "api-port"
       port: 5672
       targetPort: 5672
+      nodePort: 30034
     - name: "manage-port"
       port: 15672
       targetPort: 15672
+      nodePort: 30035 # Node port is similar to public exposure of given port
   selector:
     app: rabbitmq
-status:
-  loadBalancer: {}
