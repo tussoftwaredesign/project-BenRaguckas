@@ -1,0 +1,25 @@
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: broker-service
+# spec:
+#   clusterIP: 10.128.0.16
+#   type: LoadBalancer
+#   selector:
+#     lbtype: broker
+#   ports:
+#     - name: "go-rest-api"
+#       port: 8080
+#       targetPort: 8080
+#     - name: "minio-api"
+#       port: 9000
+#       targetPort: 9000
+#     - name: "minio-ui"
+#       port: 9090
+#       targetPort: 9090
+#     - name: "rmq-api"
+#       port: 5672
+#       targetPort: 5672
+#     - name: "rmq-ui"
+#       port: 15672
+#       targetPort: 15672

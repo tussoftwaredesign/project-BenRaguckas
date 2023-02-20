@@ -5,16 +5,16 @@ metadata:
     app: minio
   name: minio-service
 spec:
-  clusterIP: 10.100.10.11
-  type: NodePort
+  clusterIP: 10.128.0.11
+  type: LoadBalancer
   ports:
     - name: "port-1"
       port: 9000
       targetPort: 9000
-      nodePort: 30036
+      # nodePort: 30036
     - name: "port-2"
       port: 9090
       targetPort: 9090
-      nodePort: 30037
+      # nodePort: 30037
   selector:
     app: minio

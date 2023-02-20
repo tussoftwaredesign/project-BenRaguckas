@@ -6,7 +6,7 @@ metadata:
   labels:
     type: local
 spec:
-  storageClassName: hostpath
+  storageClassName: linode-block-storage-retain
   capacity:
     storage: 1Gi
   accessModes:

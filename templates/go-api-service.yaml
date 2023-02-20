@@ -5,12 +5,12 @@ metadata:
     app: go-api
   name: go-api-service
 spec:
-  clusterIP: 10.100.10.13
-  type: NodePort
+  clusterIP: 10.128.0.13
+  type: LoadBalancer
   ports:
-    - name: "port-1"
+    - name: "go-rest-api"
       port: 8080
       targetPort: 8080
-      nodePort: 30030
+      # nodePort: 30030
   selector:
     app: go-api

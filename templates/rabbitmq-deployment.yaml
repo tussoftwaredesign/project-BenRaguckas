@@ -6,15 +6,16 @@ metadata:
   name: rabbitmq
   namespace: msgb
 spec:
-  replicas: 1
   selector:
     matchLabels:
-      app: rabbitmq
+      lbtype: broker
+  replicas: 1
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
+        lbtype: broker
         app: rabbitmq
     spec:
       containers:
