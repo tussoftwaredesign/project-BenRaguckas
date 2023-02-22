@@ -5,21 +5,14 @@ import (
 	"fmt"
 	"mime/multipart"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/minio/minio-go/v7"
-	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 // Returns minio client with default or cmd flag variables
-
-// Returns amqp.Connection for RabbitMQ credentials
-func getRMQConnection() (*amqp.Connection, error) {
-	return amqp.Dial("amqp://" + rmq_access_id + ":" + rmq_access_key + "@" + rmq_host + ":" + strconv.Itoa(rmq_port) + "/")
-}
 
 // Minio Health Check call
 func healthMinio(c *gin.Context) {

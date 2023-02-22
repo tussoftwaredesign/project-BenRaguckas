@@ -12,6 +12,10 @@
         <function-byname>getItem</function-byname>
     </api>
     <api>
+        <uri method="PUT" use_params="true" path_params="bucket item" use_body="true" body_items="file">/custom/:bucket/:item</uri>
+        <function-byname>putItemNamed</function-byname>
+    </api>
+    <api>
         <uri method="GET" use_params="true" use_body="false" path_params="bucket">/custom/:bucket</uri>
         <function-byname>listItems</function-byname>
     </api>
@@ -22,5 +26,13 @@
     <api>
         <uri method="PUT" use_params="true" path_params="bucket" use_body="true" body_items="file">/custom/:bucket</uri>
         <function-byname>putItem</function-byname>
+    </api>
+    <api>
+        <uri method="POST" use_params="false" use_body="true" body_items="file">/background</uri>
+        <function-byname>predefinedBackground</function-byname>
+    </api>
+    <api>
+        <uri method="POST" use_params="false" use_body="true" body_items="file">/gray</uri>
+        <function-byname>predefinedGray</function-byname>
     </api>
 </apilist>

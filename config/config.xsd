@@ -125,7 +125,10 @@
             <xsd:enumeration value="listItems" />
             <xsd:enumeration value="getItem" />
             <xsd:enumeration value="putItem" />
+            <xsd:enumeration value="putItemNamed" />
             <xsd:enumeration value="pushItem" />
+            <xsd:enumeration value="predefinedBackground" />
+            <xsd:enumeration value="predefinedGray" />
         </xsd:restriction>
     </xsd:simpleType>
 

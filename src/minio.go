@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"mime/multipart"
 	"strconv"
 
@@ -11,8 +12,9 @@ import (
 )
 
 func getMinioClient() (*minio.Client, error) {
+	fmt.Printf("MINIO: %s:%d\n", minio_host, minio_port)
 	return minio.New(minio_host+":"+strconv.Itoa(minio_port), &minio.Options{
-		Creds:  credentials.NewStaticV4(minio_access_id, minio_access_key, ""),
+		Creds:  credentials.NewStaticV4(minio_cred_id, minio_cred_key, ""),
 		Secure: false,
 	})
 }
@@ -42,6 +44,9 @@ func pushMinioFile(file multipart.File, fileHeaders multipart.FileHeader) (*mini
 		return nil, err
 	}
 	err = minioClient.MakeBucket(context.Background(), bucket_uuid, minio.MakeBucketOptions{})
+	if err != nil {
+		return nil, err
+	}
 	upload_info, err := minioClient.PutObject(
 		context.Background(), //	Context (would it be better to use gin.Context ?)
 		bucket_uuid,          //	Bucket name (use uuid)
@@ -53,7 +58,7 @@ func pushMinioFile(file multipart.File, fileHeaders multipart.FileHeader) (*mini
 	return &upload_info, err
 }
 
-func putMinioFile(bucket_uuid string, file multipart.File, fileHeaders multipart.FileHeader) (*minio.UploadInfo, error) {
+func putMinioFile(file multipart.File, fileHeaders multipart.FileHeader, bucket_uuid string) (*minio.UploadInfo, error) {
 	minioClient, err := getMinioClient()
 	if err != nil {
 		return nil, err
@@ -68,6 +73,12 @@ func putMinioFile(bucket_uuid string, file multipart.File, fileHeaders multipart
 		minio.PutObjectOptions{ContentType: "application/octet-stream"},
 	)
 	return &upload_info, err
+}
+
+func putMinioFileNamed(file multipart.File, fileHeaders multipart.FileHeader, bucket_uuid string, item_name string) (*minio.UploadInfo, error) {
+	fileHeaders.Filename = item_name
+	fmt.Println(fileHeaders.Filename)
+	return putMinioFile(file, fileHeaders, bucket_uuid)
 }
 
 func deleteMinioFile(bucker_uuid string, item_name string) error {

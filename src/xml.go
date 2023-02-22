@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"reflect"
+	"runtime"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -73,7 +74,11 @@ type MethodOptions struct {
 }
 
 func parseConfig() ApiConfig {
-	xmlFile, err := os.Open("C:/Users/bean/project-y4/msgb/go-rest/config/config.xml")
+	path := "/usr/src/app/config/config.xml"
+	if operating := runtime.GOOS; operating == "windows" {
+		path = "C:/Users/bean/project-y4/msgb/go-rest/config/config.xml"
+	}
+	xmlFile, err := os.Open(path)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -112,6 +117,7 @@ func (api CustomEndpoint) parseMethodOptions(c *gin.Context) (MethodOptions, err
 	return options, nil
 }
 
+// used by main.go
 func MainAction(c *gin.Context) {
 	api := getApiConfig(c)
 	//	No api found
@@ -141,10 +147,13 @@ func MainAction(c *gin.Context) {
 type stubMapping map[string]interface{}
 
 var StubStorage = stubMapping{
-	"listItems": listItems,
-	"getItem":   getItem,
-	"putItem":   putItem,
-	"pushItem":  pushItem,
+	"listItems":            listItems,
+	"getItem":              getItem,
+	"putItem":              putItem,
+	"pushItem":             pushItem,
+	"predefinedBackground": processPredefinedBackground,
+	"predefinedBGray":      processPredefinedGray,
+	"putItemNamed":         putItemNamed,
 }
 
 // Dont ask (https://medium.com/@vicky.kurniawan/go-call-a-function-from-string-name-30b41dcb9e12)
