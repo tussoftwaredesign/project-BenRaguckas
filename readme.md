@@ -3,9 +3,14 @@ https://hub.docker.com/_/golang
 
 
 build:
-
-    docker build -t go-rest-api:0.1.2 .
-
+```docker
+docker build -t beanbon/go-rest-api:0.2.0 .
+```
 run:
-
-    docker run -it --rm --name go-rest-test -p 8080:8080 go-rest-api:0.1.2
+```docker
+docker run -it --rm --name go-rest-test -p 8080:8080 beanbon/go-rest-api:0.2.0
+```
+run + volume config.xml:
+```docker
+docker run -v /local/path/to/file1.txt:/container/path/to/file1.txt -it --rm --name go-rest-test -p 8080:8080 beanbon/go-rest-api:0.2.0
+```

@@ -17,8 +17,9 @@ type GinContext struct{ *gin.Context }
 var form_file_identifier = "file"
 
 // Connection properties
-var minio_host, rmq_host string
-var minio_port, rmq_port int
+// var minio_host, rmq_host string
+// var minio_port, rmq_port int
+var minio_serv, rmq_serv string
 
 // Credential properties
 var minio_cred_id, minio_cred_key string
@@ -26,23 +27,20 @@ var rmq_cred_id, rmq_cred_key string
 
 // Initialize cmd flags
 func init() {
-	//	endpoints (variable name, default, description)
-	flag.StringVar(&minio_host, "minio_host", "localhost", "Minio host ip to which to communicate with.")
-	flag.IntVar(&minio_port, "minio_port", 30036, "Minio host port.")
-	flag.StringVar(&rmq_host, "rmq_host", "localhost", "RabbitMQ host ip to which to communicate with.")
-	flag.IntVar(&rmq_port, "rmq_port", 30034, "RabbitMQ host port.")
+	//	NEW
+	flag.StringVar(&minio_serv, "minio_serv", "min.localdev.me", "Minio host ip to which to communicate with.")
+	flag.StringVar(&rmq_serv, "rmq_serv", "localhost:5672", "Minio host ip to which to communicate with.")
 	//	Minio credentials
-	flag.StringVar(&minio_cred_id, "minio_cred_id", "TE36SvMRgIWxe8lP", "Minio access id (username).")
-	flag.StringVar(&minio_cred_key, "minio_cred_key", "ncYM3dcwASrMNMk1Y7AQZAeHvA2SuooZ", "Minio access key (password).")
+	flag.StringVar(&minio_cred_id, "minio_cred_id", "minio", "Minio access id (username).")
+	flag.StringVar(&minio_cred_key, "minio_cred_key", "minio123", "Minio access key (password).")
 	//	RabbitMQ credentials
 	flag.StringVar(&rmq_cred_id, "rmq_cred_id", "guest", "RabbitMQ access id (username).")
 	flag.StringVar(&rmq_cred_key, "rmq_cred_key", "guest", "RabbitMQ access key(password).")
 
 	flag.Parse()
-	fmt.Printf("MINIO: %s:%d\n", minio_host, minio_port)
-	fmt.Printf("MINIO CREDS: %s:%s\n", minio_cred_id, minio_cred_key)
-	fmt.Printf("RMQ: %s:%d\n", rmq_host, rmq_port)
-	fmt.Printf("RMQ CREDS: %s:%s\n", rmq_cred_id, rmq_cred_key)
+	//	Debug print
+	fmt.Printf("MINIO: %s @ %s:%s\n", minio_serv, minio_cred_id, minio_cred_key)
+	fmt.Printf("RMQ: %s @ %s:%s\n", rmq_serv, rmq_cred_id, rmq_cred_key)
 }
 
 func listItems(c *gin.Context, opts MethodOptions) error {

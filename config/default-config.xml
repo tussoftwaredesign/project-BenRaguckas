@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<apilist xmlns="http://www.test.org"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.test.org config.xsd">
+    <default-entrypoints>
+        <default-get>default/get/:a/:b</default-get>
+        <default-post>default/post</default-post>
+        <default-put>default/put/:a</default-put>
+    </default-entrypoints>
+    <endpoint>
+        <uri use_params="true" path_params="bucket item">/custom/:bucket/:item</uri>
+        <action method="GET" use_body="false"><function-byname>getItem</function-byname></action>
+        <action method="PUT" use_body="true" body_items="file"><function-byname>putItemNamed</function-byname></action>
+    </endpoint>
+    <endpoint>
+        <uri use_params="true" path_params="bucket">/custom/:bucket</uri>
+        <action method="GET" use_body="false"><function-byname>listItems</function-byname></action>
+        <action method="PUT" use_body="true" body_items="file"><function-byname>putItem</function-byname></action>
+    </endpoint>
+    <endpoint>
+        <uri  use_params="false">/custom</uri>
+        <action method="POST" use_body="true" body_items="file"><function-byname>pushItem</function-byname></action>
+    </endpoint>
+    <endpoint>
+        <uri use_params="false">/background</uri>
+        <action method="POST" use_body="true" body_items="file"><function-byname>predefinedBackground</function-byname></action>
+    </endpoint>
+    <endpoint>
+        <uri use_params="false">/gray</uri>
+        <action method="POST" use_body="true" body_items="file"><function-byname>predefinedBGray</function-byname></action>
+    </endpoint>
+</apilist>

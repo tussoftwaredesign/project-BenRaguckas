@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"mime/multipart"
-	"strconv"
 
 	"github.com/google/uuid"
 	"github.com/minio/minio-go/v7"
@@ -12,8 +11,9 @@ import (
 )
 
 func getMinioClient() (*minio.Client, error) {
-	fmt.Printf("MINIO: %s:%d\n", minio_host, minio_port)
-	return minio.New(minio_host+":"+strconv.Itoa(minio_port), &minio.Options{
+	// fmt.Printf("MINIO: %s:%d\n", minio_host, minio_port)
+	// return minio.New(minio_host+":"+strconv.Itoa(minio_port), &minio.Options{
+	return minio.New(minio_serv, &minio.Options{
 		Creds:  credentials.NewStaticV4(minio_cred_id, minio_cred_key, ""),
 		Secure: false,
 	})

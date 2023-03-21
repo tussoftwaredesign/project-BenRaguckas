@@ -1,9 +1,6 @@
 package main
 
 import (
-	"fmt"
-	"runtime"
-
 	"github.com/gin-gonic/gin" // gin for rest api
 )
 
@@ -17,45 +14,44 @@ func (r GinEngine) MapApi(api CustomEndpoint) {
 }
 
 var config ApiConfig
-var router *gin.Engine
+
+// var router *gin.Engine
 
 func init() {
 	config = parseConfig()
-	router = gin.Default()
+	// router = gin.Default()
 }
 
 func main() {
+	//	Loop through endpoints and its given actions and then bind router to em``#
 
-	//	Test
-	for _, api := range config.Apis {
-		switch api.Uri.Method {
-		case "GET":
-			router.GET(api.Uri.Value, MainAction)
-		case "POST":
-			router.POST(api.Uri.Value, MainAction)
-		case "PUT":
-			router.PUT(api.Uri.Value, MainAction)
-		case "DELETE":
-			router.DELETE(api.Uri.Value, MainAction)
+	// for _, endpoint := range config.EndPoints {
+	// 	for _, action := range endpoint.Action {
+	// 		router.Handle(action.Method, endpoint.Uri.Value, MainAction)
+	// 	}
+	// }
+
+	// // //	0.0.0.0 is default docker use
+	// if os := runtime.GOOS; os == "windows" {
+	// 	fmt.Println(os)
+	// 	router.Run("localhost:8080")
+	// } else {
+	// 	fmt.Println(os)
+	// 	router.Run("0.0.0.0:8080")
+	// }
+
+	customEndpoints()
+
+}
+
+func customEndpoints() {
+	router := gin.Default()
+	for _, endpoint := range config.EndPoints {
+		for _, action := range endpoint.Action {
+			router.Handle(action.Method, endpoint.Uri.Value, MainAction)
 		}
 	}
-
-	//	Comparison request from graveyard
-	// router.GET("/preset", func(ctx *gin.Context) {
-	// 	getMinioFile(ctx, "244d6713-1686-4974-82ec-a0ddb29e53bf", "image.jpg")
-	// })
-
-	// router := defaultRouter()
-
-	//	0.0.0.0 is default docker use
-	if os := runtime.GOOS; os == "windows" {
-		fmt.Println(os)
-		router.Run("localhost:8080")
-	} else {
-		fmt.Println(os)
-		router.Run("0.0.0.0:8080")
-	}
-
+	router.Run(":8080")
 }
 
 func defaultRouter() *gin.Engine {

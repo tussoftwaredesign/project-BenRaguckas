@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"strconv"
 	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
@@ -19,7 +18,8 @@ type RoutingMap struct {
 
 // Returns amqp.Connection for RabbitMQ credentials
 func getRMQConnection() (*amqp.Connection, error) {
-	return amqp.Dial("amqp://" + rmq_cred_id + ":" + rmq_cred_key + "@" + rmq_host + ":" + strconv.Itoa(rmq_port) + "/")
+	// return amqp.Dial("amqp://" + rmq_cred_id + ":" + rmq_cred_key + "@" + rmq_host + ":" + strconv.Itoa(rmq_port) + "/")
+	return amqp.Dial("amqp://" + rmq_cred_id + ":" + rmq_cred_key + "@" + rmq_serv + "/")
 }
 
 func rmqBasicPublish(info RoutingMap, que_name string) (*string, error) {
