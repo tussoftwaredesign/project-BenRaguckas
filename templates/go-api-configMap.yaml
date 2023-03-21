@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.GoApi.name }}-config-map
+  namespace: {{ .Values.Namespace }}
+  labels:
+    {{- include "bean-service-mesh.labels" . | nindent 4 }}
+data:
+  config.xml: |-
+{{ .Files.Get .Values.GoApi.configMap.path | indent 4 }}

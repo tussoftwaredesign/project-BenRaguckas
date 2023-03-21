@@ -1,12 +1,13 @@
+{{- if .Values.Minio.enable }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: {{ .Values.Minio.name }}
+  namespace: {{ .Values.namespace }}
   labels:
-    app: minio
-  name: minio
-  namespace: msgb # Change this value to match the namespace metadata.name
+    {{- include "bean-service-mesh.labels" . | nindent 4 }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.Minio.replicaCount }}
   selector:
     matchLabels:
       lbtype: broker
@@ -16,28 +17,40 @@ spec:
     metadata:
       labels:
         lbtype: broker
-        app: minio
+        app: {{ .Values.Minio.name }}-selector
     spec:
       containers:
-        - name: minio
-          image: quay.io/minio/minio:latest
-          command:
+        - name: {{ .Values.Minio.name }}
+          image: {{ .Values.Minio.image }}
+          {{- if .LocalDev }}
+          imagePullPolicy: Never
+          {{- end}}
+          command: 
             - /bin/bash
             - -c
           args:
-            - minio server /data --console-address :9090
+            # - minio server /data --console-address :9090
+            {{- if .Values.Minio.service.console.enable }}
+            - minio server /data --console-address :{{ .Values.Minio.service.console.port }}
+            {{- else }}
+            - minio server /data
+            {{- end }}
           env:
-            - name: MINIO_ACCESS_KEY
-              value: "minio"
-            - name: MINIO_SECRET_KEY
-              value: "minio123"
+            - name:  MINIO_ROOT_USER
+              value: {{ .Values.Minio.creds.rootUser }}
+            - name:  MINIO_ROOT_PASSWORD
+              value: {{ .Values.Minio.creds.rootPassword }}
           volumeMounts:
             - mountPath: /data
-              name: minio-volume # Corresponds to the `spec.volumes` Persistent Volume
+              name: {{ .Values.Minio.name }}-volume
           ports:
-            - containerPort: 9090
-            - containerPort: 9000
+            {{- if .Values.Minio.service.console.enable }}
+            - containerPort: {{ .Values.Minio.service.console.port }}
+            {{- end}}
+            - containerPort: {{ .Values.Minio.service.api.port }}
       volumes:
-        - name: minio-volume
+        - name: {{ .Values.Minio.name }}-volume
           persistentVolumeClaim:
-            claimName: minio-pvc
+            claimName: {{ .Values.Minio.name }}-pvc
+
+{{- end }}

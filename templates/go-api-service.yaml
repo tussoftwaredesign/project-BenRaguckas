@@ -1,16 +1,17 @@
+{{- if .Values.GoApi.service.enable }}
 apiVersion: v1
 kind: Service
 metadata:
+  name: {{ .Values.GoApi.name }}{{ .Values.GoApi.service.suffix }}
   labels:
-    app: go-api
-  name: go-api-service
+    {{- include "bean-service-mesh.labels" . | nindent 4 }}
 spec:
-  clusterIP: 10.128.0.13
-  type: LoadBalancer
-  ports:
-    - name: "go-rest-api"
-      port: 8080
-      targetPort: 8080
-      # nodePort: 30030
+  type: {{ .Values.GoApi.service.type }}
   selector:
-    app: go-api
+    app: {{ .Values.GoApi.name }}-selector
+  ports:
+    - name: {{ .Values.GoApi.name }}{{ .Values.GoApi.service.suffix }}{{ .Values.GoApi.service.api.suffix }}
+      protocol: {{ .Values.GoApi.service.api.protocol }}
+      port: {{ .Values.GoApi.service.api.port }}
+      targetPort: {{ .Values.GoApi.service.api.targetPort }}
+{{- end }}

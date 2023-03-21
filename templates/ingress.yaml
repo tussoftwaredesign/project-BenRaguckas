@@ -1,0 +1,78 @@
+{{- if .Values.Ingress.enable }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Values.Ingress.name }}
+  namespace: {{ .Values.Namespace }}
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: 8m
+spec:
+  ingressClassName: {{ .Values.Ingress.ingressClassName }}
+  rules:
+    #   GO-Api
+    {{- if .Values.GoApi.service.api.ingress }}
+    - host: {{ .Values.GoApi.service.api.ingress.host }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend: 
+              service:
+                name: {{ .Values.GoApi.name }}-service
+                port:
+                  number: {{ .Values.GoApi.service.api.targetPort }}
+    {{- end}}
+    #   MINIO-Console
+    {{- if .Values.Minio.service.console.ingress.enable }}
+    - host: {{ .Values.Minio.service.console.ingress.host }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend: 
+              service:
+                name: {{ .Values.Minio.name }}-service
+                port:
+                  number: {{ .Values.Minio.service.console.targetPort }}
+    {{- end}}
+    #   MINIO-Api
+    {{- if .Values.Minio.service.api.ingress.enable }}
+    - host: {{ .Values.Minio.service.api.ingress.host }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend: 
+              service:
+                name: {{ .Values.Minio.name }}-service
+                port:
+                  number: {{ .Values.Minio.service.api.targetPort }}
+    {{- end}}
+    #   RMQ-Console
+    {{- if .Values.RabbitMQ.service.console.ingress.enable }}
+    - host: {{ .Values.RabbitMQ.service.console.ingress.host }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend: 
+              service:
+                name: {{ .Values.RabbitMQ.name }}-service
+                port:
+                  number: {{ .Values.RabbitMQ.service.console.targetPort }}
+    {{- end }}
+    #   RMQ-Api
+    {{- if .Values.RabbitMQ.service.api.ingress.enable }}
+    - host: {{ .Values.RabbitMQ.service.api.ingress.host }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend: 
+              service:
+                name: {{ .Values.RabbitMQ.name }}-service
+                port:
+                  number: {{ .Values.RabbitMQ.service.api.targetPort }}
+    {{- end }}
+
+{{- end }}

@@ -1,20 +1,23 @@
+{{- if .Values.RabbitMQ.service.enable }}
 apiVersion: v1
 kind: Service
 metadata:
+  name: {{ .Values.RabbitMQ.name }}{{ .Values.RabbitMQ.service.suffix }}
   labels:
-    app: rabbitmq
-  name: rmq-service
+    {{- include "bean-service-mesh.labels" . | nindent 4 }}
 spec:
-  clusterIP: 10.128.0.12
-  type: LoadBalancer
-  ports:
-    - name: "api-port"
-      port: 5672
-      targetPort: 5672
-      # nodePort: 30034
-    - name: "manage-port"
-      port: 15672
-      targetPort: 15672
-      # nodePort: 30035 # Node port is similar to public exposure of given port
+  type: {{ .Values.RabbitMQ.service.type }}
   selector:
-    app: rabbitmq
+    app: {{ .Values.RabbitMQ.name }}-selector
+  ports:
+    {{- if .Values.RabbitMQ.service.console.enable }}
+    - name: {{ .Values.RabbitMQ.name }}{{ .Values.RabbitMQ.service.suffix }}{{ .Values.RabbitMQ.service.console.suffix }}
+      protocol: {{ .Values.RabbitMQ.service.console.protocol }}
+      port: {{ .Values.RabbitMQ.service.console.port }}
+      targetPort: {{ .Values.RabbitMQ.service.console.targetPort }}
+    {{- end}}
+    - name: {{ .Values.RabbitMQ.name }}{{ .Values.RabbitMQ.service.suffix }}{{ .Values.RabbitMQ.service.api.suffix }}
+      protocol: {{ .Values.RabbitMQ.service.api.protocol }}
+      port: {{ .Values.RabbitMQ.service.api.port }}
+      targetPort: {{ .Values.RabbitMQ.service.api.targetPort }}
+{{- end}}

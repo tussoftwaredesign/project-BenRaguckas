@@ -1,31 +1,59 @@
+{{- if .Values.GoApi.enable }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: {{ .Values.GoApi.name }}
+  namespace: {{ .Values.namespace }}
   labels:
-    app: go-api
-    component: broker
-  name: go-api
-  namespace: msgb
+    # name: {{- include "bean-service-mesh.name" . }}-api
+    {{- include "bean-service-mesh.labels" . | nindent 4 }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.GoApi.replicaCount }}
   selector:
     matchLabels:
       lbtype: broker
+      # {{- include "bean-service-mesh.selectorLabels" . | nindent 6 }}
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
         lbtype: broker
-        app: go-api
+        app: {{ .Values.GoApi.name }}-selector
+        # {{- include "bean-service-mesh.selectorLabels" . | nindent 8 }}
     spec:
+      initContainers: 
+        - name: wait-for-service
+          image: busybox:1.28
+          # Checks for minio service (not deployment)
+          command: ['sh', '-c', "until nslookup {{ .Values.Minio.name }}{{ .Values.Minio.service.suffix }}.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for mydb; sleep 2; done"]
       containers:
-        - name: go-api
-          image: beanbon/go-rest-api:0.1.4
+        - name: {{ .Values.GoApi.name }}
+          image: {{ .Values.GoApi.image }}
+          {{- if .LocalDev }}
+          imagePullPolicy: Never
+          {{- end}}
+          volumeMounts:
+            - name: {{ .Values.GoApi.name }}-config-volume
+              mountPath: /usr/src/app/config/
           env:
-            - name: MINIO_HOST
-              value: "10.128.0.11"
-            - name: RMQ_HOST
-              value: "10.128.0.12"
+            - name: MINIO_SERV
+              value: $({{ print .Values.Minio.name .Values.Minio.service.suffix | upper | replace "-" "_" }}_SERVICE_HOST):$({{ print .Values.Minio.name .Values.Minio.service.suffix | upper | replace "-" "_" }}_SERVICE_PORT_{{ print .Values.Minio.name .Values.Minio.service.suffix .Values.Minio.service.api.suffix | upper | replace "-" "_" }})
+            - name: MINIO_CRED_ID
+              value: {{ .Values.Minio.creds.rootUser }}
+            - name: MINIO_CRED_KEY
+              value: {{ .Values.Minio.creds.rootPassword }}
+            - name: RMQ_SERV
+              value: $({{ print .Values.RabbitMQ.name .Values.RabbitMQ.service.suffix | upper | replace "-" "_" }}_SERVICE_HOST):$({{ print .Values.RabbitMQ.name .Values.RabbitMQ.service.suffix | upper | replace "-" "_" }}_SERVICE_PORT_{{ print .Values.RabbitMQ.name .Values.RabbitMQ.service.suffix .Values.RabbitMQ.service.api.suffix | upper | replace "-" "_" }})
+            - name: RMQ_CRED_ID
+              value: {{ .Values.RabbitMQ.creds.defaultUser }}
+            - name: RMQ_CRED_KEY
+              value: {{ .Values.RabbitMQ.creds.defaultPassword }}
           ports:
-            - containerPort: 8080
+            - containerPort: {{ .Values.GoApi.service.api.port }}
+      volumes:
+        - name: {{ .Values.GoApi.name }}-config-volume
+          configMap:
+            name: {{ .Values.GoApi.name }}-config-map
+
+{{- end }}

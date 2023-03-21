@@ -1,3 +1,113 @@
+# Values
+
+LocalDev: true
+Namespace: msgb
+
+Ingress:
+  enable: true
+  name: mesh-ingress
+  ingressClassName: nginx
+
+# GoApi configuration
+GoApi:
+  enable: false
+  name: go-api
+  replicaCount: 1
+  image: beanbon/go-rest-api:0.2.0
+  configMap:
+    path: config.xml
+  service:
+    suffix: -service
+    enable: true
+    type: ClusterIP
+    # Default API service + ing configuration
+    api:
+      suffix: -api
+      port: 8080
+      targetPort: 8080
+      protocol: TCP
+      ingress:
+        enable: true
+        host: api.localdev.me
+
+# Minio configuration
+Minio:
+  enable: true
+  name: minio
+  replicaCount: 1
+  image: quay.io/minio/minio:RELEASE.2023-03-13T19-46-17Z
+  # Credentials for console and communication for go-api
+  creds:
+    rootUser: minio
+    rootPassword: minio123
+  service:
+    suffix: -service
+    enable: true
+    type: ClusterIP
+    # Default API service + ing configuration
+    # > to be communicated with by go-api
+    api:
+      suffix: -api
+      port: 9000
+      targetPort: 9000
+      protocol: TCP
+      ingress:
+        enable: true 
+        host: min.localdev.me
+    # Optional console configuration
+    # > to help with debuging / dev
+    console: 
+      suffix: -console
+      enable: true
+      port: 9090
+      targetPort: 9090
+      protocol: TCP
+      ingress:
+        enable: true 
+        host: minio.localdev.me
+  pvc:
+    storage: 1Gi
+    storageClassName: hostpath
+
+# RabbitMQ configuration
+RabbitMQ:
+  enable: true
+  name: rabbitmq
+  replicaCount: 1
+  image: rabbitmq:3.11
+  creds:
+    defaultUser: guest
+    defaultPassword: guest
+  service:
+    suffix: -service
+    enable: true
+    type: ClusterIP
+    # Default API service + ing configuration
+    # > to be communicated with by go-api
+    api:
+      suffix: -api
+      port: 5672
+      targetPort: 5672
+      protocol: TCP
+      ingress:
+        enable: true 
+        host: rmq.localdev.me
+    # Optional management configuration
+    # > this attaches -management to the image name
+    # > to help with debuging / dev
+    console:
+      suffix: -console
+      enable: true
+      port: 15672
+      targetPort: 15672
+      protocol: TCP
+      ingress:
+        enable: true 
+        host: rabbitmq.localdev.me
+
+
+
+
 # Default values for ..
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
@@ -16,7 +126,7 @@ fullnameOverride: ""
 
 serviceAccount:
   # Specifies whether a service account should be created
-  create: true
+  create: false
   # Annotations to add to the service account
   annotations: {}
   # The name of the service account to use.

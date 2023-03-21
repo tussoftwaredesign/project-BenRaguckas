@@ -1,29 +1,38 @@
+{{- if .Values.RabbitMQ.enable }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: {{ .Values.RabbitMQ.name }}
+  namespace: {{ .Values.Namespace }}
   labels:
-    app: rabbitmq
-  name: rabbitmq
-  namespace: msgb
+    {{- include "bean-service-mesh.labels" . | nindent 4 }}
 spec:
+  replicas: {{ .Values.RabbitMQ.replicaCount }}
   selector:
     matchLabels:
       lbtype: broker
-  replicas: 1
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
         lbtype: broker
-        app: rabbitmq
+        app: {{ .Values.RabbitMQ.name }}-selector
     spec:
       containers:
-        - image: rabbitmq:3-management
-          name: rabbitmq-container-name
+        - name: {{ .Values.RabbitMQ.name }}
+          {{- if .Values.RabbitMQ.service.console.enable }}
+          image: {{ .Values.RabbitMQ.image }}-management
+          {{- else }}
+          image: {{ .Values.RabbitMQ.image }}
+          {{- end }}
           ports:
-            - containerPort: 5672
-            - containerPort: 15672
+            - containerPort: {{ .Values.RabbitMQ.service.api.port }}
+            {{- if .Values.RabbitMQ.service.console.enable }}
+            - containerPort: {{ .Values.RabbitMQ.service.console.port }}
+            {{- end }}
           resources: {}
       restartPolicy: Always
 status: {}
+
+{{- end }}

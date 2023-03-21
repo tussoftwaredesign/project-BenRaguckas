@@ -1,0 +1,31 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: example-ingress
+  # namespace: msgb
+  # annotations:
+  #   ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: demo.localdev.me
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend: 
+              service:
+                name: demo
+                port:
+                  number: 80
+
+  # - http:
+  #     paths:
+  #       - path: /go
+  #         backend:
+  #           serviceName: go-api
+  #           servicePort: 8080
+  #       - path: /minio
+  #         backend:
+  #           serviceName: minio
+  #           servicePort: 9090

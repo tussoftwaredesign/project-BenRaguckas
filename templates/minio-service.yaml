@@ -1,20 +1,21 @@
+{{- if .Values.Minio.service.enable }}
 apiVersion: v1
 kind: Service
 metadata:
-  labels:
-    app: minio
-  name: minio-service
+  name: {{ .Values.Minio.name }}{{ .Values.Minio.service.suffix }}
 spec:
-  clusterIP: 10.128.0.11
-  type: LoadBalancer
-  ports:
-    - name: "port-1"
-      port: 9000
-      targetPort: 9000
-      # nodePort: 30036
-    - name: "port-2"
-      port: 9090
-      targetPort: 9090
-      # nodePort: 30037
+  type: {{ .Values.Minio.service.type }}
   selector:
-    app: minio
+    app: {{ .Values.Minio.name }}-selector
+  ports:
+    {{- if .Values.Minio.service.console.enable }}
+    - name: {{ .Values.Minio.name }}{{ .Values.Minio.service.suffix }}{{ .Values.Minio.service.console.suffix }}
+      protocol: {{ .Values.Minio.service.console.protocol }}
+      port: {{ .Values.Minio.service.console.port }}
+      targetPort: {{ .Values.Minio.service.console.targetPort }}
+    {{- end}}
+    - name: {{ .Values.Minio.name }}{{ .Values.Minio.service.suffix }}{{ .Values.Minio.service.api.suffix }}
+      protocol: {{ .Values.Minio.service.api.protocol }}
+      port: {{ .Values.Minio.service.api.port }}
+      targetPort: {{ .Values.Minio.service.api.targetPort }}
+{{- end}}
