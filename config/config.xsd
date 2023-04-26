@@ -10,9 +10,11 @@
                 <xsd:element name="default-entrypoints" minOccurs="1" maxOccurs="1">
                     <xsd:complexType>
                         <xsd:sequence>
-                            <xsd:element name="default-get" type="xsd:string" minOccurs="1" maxOccurs="1" />
-                            <xsd:element name="default-post" type="xsd:string" minOccurs="1" maxOccurs="1" />
-                            <xsd:element name="default-put" type="xsd:string" minOccurs="1" maxOccurs="1" />
+                            <xsd:element name="put-item" type="xsd:string" minOccurs="1" maxOccurs="1" />
+                            <xsd:element name="put-item-named" type="xsd:string" minOccurs="1" maxOccurs="1" />
+                            <xsd:element name="get-item" type="xsd:string" minOccurs="1" maxOccurs="1" />
+                            <xsd:element name="get-item-named" type="xsd:string" minOccurs="1" maxOccurs="1" />
+                            <xsd:element name="post-status" type="xsd:string" minOccurs="1" maxOccurs="1" />
                             <!-- <xsd:element ref="default-delete" minOccurs="1" maxOccurs="1" /> -->
                         </xsd:sequence>
                     </xsd:complexType>
@@ -28,7 +30,12 @@
         <xsd:complexType>
             <xsd:sequence>
                 <xsd:element ref="uri" minOccurs="1" maxOccurs="1" />
-                <xsd:element ref="action" minOccurs="1" maxOccurs="4"></xsd:element>
+                <!-- <xsd:element ref="action" minOccurs="1" maxOccurs="4"></xsd:element> -->
+                <xsd:choice>
+                    <xsd:element name="pre-defined-routing" type="routing" minOccurs="1" maxOccurs="1" />
+                    <xsd:element name="simple-function" type="simple-function" minOccurs="1" maxOccurs="4"/>
+                    <xsd:element name="user-defined-routing" type="undefined" minOccurs="1" maxOccurs="1"/>
+                </xsd:choice>
             </xsd:sequence>
         </xsd:complexType>
     </xsd:element>
@@ -47,18 +54,27 @@
         </xsd:complexType>
     </xsd:element>
 
-    <!-- TESt -->
-    <xsd:element name="action">
-        <xsd:complexType>
-            <xsd:sequence>
-                <xsd:element name="function-byname" type="function" minOccurs="0" maxOccurs="unbounded" />
-                <xsd:element name="returning-function" type="xsd:string" minOccurs="0" maxOccurs="1" />
-            </xsd:sequence>
-            <xsd:attribute name="method" type="method" use="required"/>
-            <xsd:attribute name="use_body" type="xsd:boolean" use="required" />
-            <xsd:attribute name="body_items" type="xsd:string" use="optional" />
-        </xsd:complexType>
-    </xsd:element>
+    <xsd:complexType name="routing">
+        <xsd:sequence>
+            <xsd:element name="queue" type="queue-entry" minOccurs="1" maxOccurs="unbounded" />
+        </xsd:sequence>
+        <xsd:attribute name="object_identifier" type="xsd:string" use="required"/>
+    </xsd:complexType>
+
+    <xsd:complexType name="undefined">
+        <xsd:sequence />
+    </xsd:complexType>
+
+    <xsd:complexType name="queue-entry">
+        <xsd:simpleContent>
+            <xsd:extension base="xsd:string">
+                <xsd:attribute name="name" use="optional"/>
+                <xsd:attribute name="input" use="optional"/>
+                <xsd:attribute name="output" use="optional"/>
+            </xsd:extension>
+        </xsd:simpleContent>
+    </xsd:complexType>
+
     
     <!-- URI definition -->
     <xsd:element name="function-extra">
@@ -80,19 +96,30 @@
             <xsd:enumeration value="DELETE" />
         </xsd:restriction>
     </xsd:simpleType>
-    
-    <!-- METHOD attribute definition -->
-    <xsd:simpleType name="function">
+
+
+    <xsd:simpleType name="s-func">
         <xsd:restriction base="xsd:string">
-            <xsd:enumeration value="listItems" />
-            <xsd:enumeration value="getItem" />
+            <xsd:enumeration value="postItem" />
             <xsd:enumeration value="putItem" />
             <xsd:enumeration value="putItemNamed" />
-            <xsd:enumeration value="pushItem" />
-            <xsd:enumeration value="predefinedBackground" />
-            <xsd:enumeration value="predefinedBGray" />
+            <xsd:enumeration value="listBuckets" />
+            <xsd:enumeration value="bucketDetails" />
+            <xsd:enumeration value="getItem" />
+            <xsd:enumeration value="getItemNamed" />
+            <xsd:enumeration value="deleteBucket" />
         </xsd:restriction>
     </xsd:simpleType>
+
+    <xsd:complexType name="simple-function">
+        <xsd:simpleContent>
+            <xsd:extension base="s-func">
+                <xsd:attribute name="method" type="method" use="required"/>
+                <xsd:attribute name="use_body" type="xsd:boolean" use="required" />
+                <xsd:attribute name="body_items" type="xsd:string" use="optional" />
+            </xsd:extension>
+        </xsd:simpleContent>
+    </xsd:complexType>
 
 
 </xsd:schema>

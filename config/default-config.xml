@@ -2,31 +2,69 @@
 <apilist xmlns="http://www.test.org"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.test.org config.xsd">
-    <default-entrypoints>
-        <default-get>default/get/:a/:b</default-get>
-        <default-post>default/post</default-post>
-        <default-put>default/put/:a</default-put>
+    <!-- List of default endpoints to be used by back-end serbvices -->
+    <default-entrypoints> 
+        <put-item>/backend/:bucket</put-item>
+        <put-item-named>/backend/:bucket/:fname</put-item-named>
+        <get-item>/backend/:bucket</get-item>
+        <get-item-named>/backend/:bucket/:fname</get-item-named>
+        <post-status>/backend/:bucket</post-status>
     </default-entrypoints>
-    <endpoint>
-        <uri use_params="true" path_params="bucket item">/custom/:bucket/:item</uri>
-        <action method="GET" use_body="false"><function-byname>getItem</function-byname></action>
-        <action method="PUT" use_body="true" body_items="file"><function-byname>putItemNamed</function-byname></action>
-    </endpoint>
-    <endpoint>
-        <uri use_params="true" path_params="bucket">/custom/:bucket</uri>
-        <action method="GET" use_body="false"><function-byname>listItems</function-byname></action>
-        <action method="PUT" use_body="true" body_items="file"><function-byname>putItem</function-byname></action>
-    </endpoint>
-    <endpoint>
-        <uri  use_params="false">/custom</uri>
-        <action method="POST" use_body="true" body_items="file"><function-byname>pushItem</function-byname></action>
-    </endpoint>
-    <endpoint>
-        <uri use_params="false">/background</uri>
-        <action method="POST" use_body="true" body_items="file"><function-byname>predefinedBackground</function-byname></action>
-    </endpoint>
+    <!-- Example predefined routing for applying multiple processing steps to a file -->
     <endpoint>
         <uri use_params="false">/gray</uri>
-        <action method="POST" use_body="true" body_items="file"><function-byname>predefinedBGray</function-byname></action>
+        <pre-defined-routing object_identifier="file">
+            <queue>backgroundQ</queue>
+            <queue>grayoutQ</queue>
+        </pre-defined-routing>
+    </endpoint>
+    <!-- Example of basic methods to help steamline front end communication experience -->
+    <endpoint>
+        <uri use_params="true" path_params="bucket">/sf/:bucket/info</uri>
+        <simple-function method="GET" use_body="false">bucketDetails</simple-function>
+    </endpoint>
+    <endpoint>
+        <uri use_params="true" path_params="bucket">/sf/:bucket</uri>
+        <simple-function method="GET" use_body="false">getItem</simple-function>
+        <simple-function method="PUT" use_body="true" body_items="file">putItem</simple-function>
+        <simple-function method="DELETE" use_body="false">deleteBucket</simple-function>
+    </endpoint>
+    <endpoint>
+        <uri use_params="false">/sf</uri>
+        <simple-function method="GET" use_body="false">listBuckets</simple-function>
+        <simple-function method="POST" use_body="true" body_items="file">postItem</simple-function>
+    </endpoint>
+    <endpoint>
+        <uri use_params="true" path_params="bucket item">/sf/:bucket/:item</uri>
+        <simple-function method="GET" use_body="false">getItemNamed</simple-function>
+        <simple-function method="PUT" use_body="true" body_items="file">putItemNamed</simple-function>
+    </endpoint>
+
+    <endpoint>
+        <uri use_params="false">/gray</uri>
+        <pre-defined-routing object_identifier="file">
+            <queue>backgroundQ</queue>
+            <queue>grayoutQ</queue>
+        </pre-defined-routing>
+    </endpoint>
+    
+    <endpoint>
+        <uri use_params="false">/testurl</uri>
+        <user-defined-routing />
+    </endpoint>
+
+    <endpoint>
+        <uri use_params="false">/background</uri>
+        <pre-defined-routing object_identifier="file">
+            <queue>backgroundQ</queue>
+        </pre-defined-routing>
+    </endpoint>
+    
+    <endpoint>
+        <uri use_params="false">/transcribe</uri>
+        <pre-defined-routing object_identifier="file">
+            <queue name="Audio Separation" output="audio-track.wav">videoaudioextractQ</queue>
+            <queue name="Audio Transcribing" input="audio-track.wav">transcribeQ</queue>
+        </pre-defined-routing>
     </endpoint>
 </apilist>

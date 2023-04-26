@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"mime/multipart"
-	"net/http"
 	"os"
 	"reflect"
 	"runtime"
@@ -24,21 +23,20 @@ type ApiConfig struct {
 
 // Map for default endpoints (may be useless)
 type DefaultEndpoint struct {
-	XMLName xml.Name `xml:"default-entrypoints"`
-	GET     string   `xml:"default-get"`
-	POST    string   `xml:"default-post"`
-	PUT     string   `xml:"default-put"`
-	DELETE  string   `sml:"default-delete"`
+	XMLName      xml.Name `xml:"default-entrypoints"`
+	PutItem      string   `xml:"put-item"`
+	PutItemNamed string   `xml:"put-item-named"`
+	GetItem      string   `xml:"get-item"`
+	GetItemNamed string   `xml:"get-item-named"`
+	PostStatus   string   `xml:"post-status"`
 }
 
 // Mapping API object
 type CustomEndpoint struct {
-	XMLName xml.Name  `xml:"endpoint"`
-	Uri     CustomUri `xml:"uri"`
-	Action  []Action  `xml:"action"`
-	// Process Process   `xml:"function-extra"`
-	// Pre     PredefinedProcess `xml:"predefined-process"`
-	// Usr     UserPRocess       `xml:"user-process"`
+	XMLName        xml.Name         `xml:"endpoint"`
+	Uri            CustomUri        `xml:"uri"`
+	SimpleFunction []SimpleFunction `xml:"simple-function"`
+	DefinedRouting *DefinedRouting  `xml:"pre-defined-routing,omitempty"`
 }
 
 // Mapping URI object
@@ -49,22 +47,34 @@ type CustomUri struct {
 	Params    string   `xml:"path_params,attr"`
 }
 
-type Action struct {
-	XMLName   xml.Name `xml:"action"`
-	Method    string   `xml:"method,attr"`
-	UseBody   bool     `xml:"use_body,attr"`
-	BodyItems string   `xml:"body_items,attr"`
-	Func      []string `xml:"function-byname"`
+type SimpleFunction struct {
+	XMLName      xml.Name `xml:"simple-function"`
+	Method       string   `xml:"method,attr"`
+	UseBody      bool     `xml:"use_body,attr"`
+	BodyItems    string   `xml:"body_items,attr"`
+	FunctionName string   `xml:",innerxml"`
+}
+
+type DefinedRouting struct {
+	XMLName     xml.Name `xml:"pre-defined-routing"`
+	ObjectIdent string   `xml:"object_identifier,attr"`
+	Ques        []Queue  `xml:"queue"`
+}
+
+type Queue struct {
+	// XMLName xml.Name
+	Que    string  `xml:",chardata"`
+	Name   *string `xml:"name,attr"`
+	Input  *string `xml:"input,attr"`
+	Output *string `xml:"output,attr"`
+	Params *string `xml:"params"`
 }
 
 type MethodOptions struct {
 	//	List of params in specified in uri Path
-	PathParams []string
-	//	List of files and headers (may be obselete, will investigate during dev)
-	Files       []multipart.File
-	FileHeaders []multipart.FileHeader
-	//	Identifiers to getFormFile
-	FileIdents []string
+	PathParams  *[]string
+	Files       *[]multipart.File
+	FileHeaders *[]multipart.FileHeader
 }
 
 func parseConfig() ApiConfig {
@@ -91,70 +101,68 @@ func parseConfig() ApiConfig {
 	return apis
 }
 
-func (api CustomEndpoint) parseMethodOptions(c *gin.Context) (MethodOptions, error) {
-	var options = MethodOptions{}
-	//	Collect path parameters present
-	if api.Uri.UseParams {
-		parameters := strings.Split(api.Uri.Params, " ")
-		for _, param := range parameters {
-			options.PathParams = append(options.PathParams, c.Param(param))
-		}
-	}
-	if api.Action[0].UseBody {
-		identifiers := strings.Split(api.Action[0].BodyItems, " ")
-		for _, identifier := range identifiers {
-			file, fileHeaders := getFormFile(c, identifier)
-			//	Break in case unable to deal with file (caused by end user)
-			if file == nil {
-				return MethodOptions{}, errors.New("Failed to retrieve file.")
-			}
-			options.Files = append(options.Files, file)
-			options.FileHeaders = append(options.FileHeaders, fileHeaders)
-			options.FileIdents = append(options.FileIdents, identifier)
-		}
-	}
-	return options, nil
-}
+// func (api CustomEndpoint) parseMethodOptions(c *gin.Context) (MethodOptions, error) {
+// 	var options = MethodOptions{}
+// 	//	Collect path parameters present
+// 	if api.Uri.UseParams {
+// 		parameters := strings.Split(api.Uri.Params, " ")
+// 		for _, param := range parameters {
+// 			options.PathParams = append(options.PathParams, c.Param(param))
+// 		}
+// 	}
+// 	if api.SimpleFunction[0].UseBody {
+// 		identifiers := strings.Split(api.SimpleFunction[0].BodyItems, " ")
+// 		for _, identifier := range identifiers {
+// 			file, fileHeaders := getFormFile(c, identifier)
+// 			//	Break in case unable to deal with file (caused by end user)
+// 			if file == nil {
+// 				return MethodOptions{}, errors.New("Failed to retrieve file.")
+// 			}
+// 			options.Files = append(options.Files, file)
+// 			options.FileHeaders = append(options.FileHeaders, fileHeaders)
+// 			options.FileIdents = append(options.FileIdents, identifier)
+// 		}
+// 	}
+// 	return options, nil
+// }
 
-// used by main.go
-func MainAction(c *gin.Context) {
-	api := getApiConfig(c)
-	//	No api found
-	if api == nil {
-		return
-	}
-	options, err := api.parseMethodOptions(c)
-	//	Throw error if an error occured when parsing
-	if err != nil {
-		return
-	}
-	for _, act := range api.Action {
-		//	Actual execution of string based method
-		err1, err2 := Call(act.Func[0], c, options)
-		if err2 != nil {
-			fmt.Println("Error calling the method:" + act.Func[0])
-			fmt.Println(err.Error())
-			c.String(http.StatusInternalServerError, "Error calling the method.")
+func getSFuncOptions(c *gin.Context, uri CustomUri, sf SimpleFunction) MethodOptions {
+	options := MethodOptions{}
+	if uri.UseParams {
+		idents := strings.Split(uri.Params, " ")
+		params := []string{}
+		for _, ident := range idents {
+			params = append(params, c.Param(ident))
 		}
-		if err1 != nil {
-			fmt.Println("Error within the method:" + act.Func[0])
-			fmt.Println(err.Error())
-			c.String(http.StatusInternalServerError, "Error within the method.")
-		}
+		options.PathParams = &params
 	}
+	if sf.UseBody {
+		idents := strings.Split(sf.BodyItems, " ")
+		files := []multipart.File{}
+		file_headers := []multipart.FileHeader{}
+		for _, ident := range idents {
+			f, fh := getFormFile(c, ident)
+			files = append(files, f)
+			file_headers = append(file_headers, fh)
+		}
+		options.Files = &files
+		options.FileHeaders = &file_headers
+	}
+	return options
 }
 
 // For mapping functions
 type stubMapping map[string]interface{}
 
 var StubStorage = stubMapping{
-	"listItems":            listItems,
-	"getItem":              getItem,
-	"putItem":              putItem,
-	"pushItem":             pushItem,
-	"predefinedBackground": processPredefinedBackground,
-	"predefinedBGray":      processPredefinedGray,
-	"putItemNamed":         putItemNamed,
+	"postItem":      simpPostItem,
+	"putItem":       simpPutItem,
+	"putItemNamed":  simpPutItemNamed,
+	"listBuckets":   simpListBuckets,
+	"bucketDetails": simpListBucketDetais,
+	"getItem":       simpGetItem,
+	"getItemNamed":  simpGetItemNamed,
+	"deleteBucket":  simpDeleteBucket,
 }
 
 // Dont ask (https://medium.com/@vicky.kurniawan/go-call-a-function-from-string-name-30b41dcb9e12)
@@ -170,7 +178,11 @@ func Call(funcName string, params ...interface{}) (result interface{}, err error
 	}
 	var res []reflect.Value
 	res = f.Call(in)
-	result = res[0].Interface()
+	if res != nil && len(res) > 0 {
+		result = res[0].Interface()
+	} else {
+		result = nil
+	}
 	return
 }
 
@@ -180,18 +192,14 @@ func getApiConfig(c *gin.Context) *CustomEndpoint {
 	endpoint_method := c.Request.Method
 	for _, api := range config.EndPoints {
 		if endpoint_path == api.Uri.Value {
-			for _, action := range api.Action {
+			for _, action := range api.SimpleFunction {
 				if endpoint_method == action.Method {
 					//	Reduce action list to only 1
-					api.Action = []Action{action}
+					api.SimpleFunction = []SimpleFunction{action}
 					return &api
 				}
 			}
 		}
 	}
 	return nil
-}
-
-func placeholderFunction() {
-	fmt.Println("placeholderFunctionCall")
 }
