@@ -1,5 +1,6 @@
 import pika
 from rembg import remove
+import urllib.request
 
 
 class RpcExample:
@@ -24,6 +25,7 @@ class RpcExample:
               f"Reply to: {props.reply_to}\t"
               f"Method: {method.delivery_tag}\t")
         processed_image = remove(body)
+
 
         print("\tImage processed, replying.")
 
