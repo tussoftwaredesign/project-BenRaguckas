@@ -5,7 +5,7 @@ metadata:
   name: {{ .Values.Ingress.name }}
   namespace: {{ .Values.Namespace }}
   annotations:
-    nginx.ingress.kubernetes.io/proxy-body-size: {{ .Values.Ingress.body-size }}
+    nginx.ingress.kubernetes.io/proxy-body-size: {{ .Values.Ingress.bodySize }}
 spec:
   ingressClassName: {{ .Values.Ingress.ingressClassName }}
   rules:

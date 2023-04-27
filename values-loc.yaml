@@ -1,17 +1,17 @@
 # Values
 
-LocalDev: false
+LocalDev: true
 Namespace: msgb
 
 Ingress:
   enable: true
   name: mesh-ingress
   ingressClassName: nginx
-  body-size: 32m
+  bodySize: 32m
 
 # GoApi configuration
 GoApi:
-  enable: true
+  enable: false
   name: go-api
   replicaCount: 1
   image: beanbon/go-rest-api:0.6.0
@@ -29,7 +29,7 @@ GoApi:
       protocol: TCP
       ingress:
         enable: true
-        host: api.bean-bon.eu
+        host: api.localdev.me
 
 # Minio configuration
 Minio:
@@ -44,7 +44,8 @@ Minio:
   service:
     suffix: -service
     enable: true
-    type: ClusterIP
+    # type: ClusterIP
+    type: LoadBalancer
     # Default API service + ing configuration
     # > to be communicated with by go-api
     api:
@@ -54,7 +55,7 @@ Minio:
       protocol: TCP
       ingress:
         enable: false 
-        host: min.bean-bon.eu
+        host: min.localdev.me
     # Optional console configuration
     # > to help with debuging / dev
     console: 
@@ -65,10 +66,10 @@ Minio:
       protocol: TCP
       ingress:
         enable: true 
-        host: minio.bean-bon.eu
+        host: minio.localdev.me
   pvc:
     storage: 1Gi
-    storageClassName: linode-minio-pv
+    storageClassName: hostpath-minio-pv
 
 # RabbitMQ configuration
 RabbitMQ:
@@ -82,7 +83,8 @@ RabbitMQ:
   service:
     suffix: -service
     enable: true
-    type: ClusterIP
+    # type: ClusterIP
+    type: LoadBalancer
     # Default API service + ing configuration
     # > to be communicated with by go-api
     api:
@@ -92,7 +94,7 @@ RabbitMQ:
       protocol: TCP
       ingress:
         enable: true 
-        host: rmq.bean-bon.eu
+        host: rmq.localdev.me
     # Optional management configuration
     # > this attaches -management to the image name
     # > to help with debuging / dev
@@ -104,7 +106,7 @@ RabbitMQ:
       protocol: TCP
       ingress:
         enable: true 
-        host: rabbitmq.bean-bon.eu
+        host: rabbitmq.localdev.me
 
 
 # RabbitMQ configuration
@@ -119,7 +121,8 @@ Mongo:
   service:
     suffix: -service
     enable: true
-    type: ClusterIP
+    # type: ClusterIP
+    type: LoadBalancer
     api:
       suffix: -api
       port: 27017
@@ -127,10 +130,10 @@ Mongo:
       protocol: TCP
       ingress:
         enable: false 
-        host: mongo.bean-bon.eu
+        host: mongo.localdev.me
   pvc:
     storage: 1Gi
-    storageClassName: linode-mongo-pv
+    storageClassName: hostpath-mongo-pv
 
 
 
