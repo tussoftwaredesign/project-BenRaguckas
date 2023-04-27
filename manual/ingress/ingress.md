@@ -12,7 +12,7 @@ helm upgrade --install ingress-nginx ingress-nginx --repo https://kubernetes.git
 2.  Edit vales.yaml to include required TCP connection (line: 873)
 ```yaml
 tcp:
-    <SERVICE_TARGETPORT>: <SERVICE_NAMESPACE>/<SERVICE_NAME>:<SERVICE_TARGETPORT>
+    <SERVICE_TARGETPORT>: <SERVICE_NAMESPACE>/<ku>:<SERVICE_TARGETPORT>
 ```
 ```yaml
 tcp:
@@ -22,4 +22,12 @@ tcp:
 4.  Install using values.yaml file:
 ```sh
 helm upgrade --install ingress-nginx ingress-nginx --repo https://kubernetes.github.io/ingress-nginx --namespace ingress-nginx --create-namespace --values values.yaml --wait
+```
+
+
+For local code debuging port-forwarding helps:
+```sh
+kubectl port-forward svc/minio-service 9000:9000 -n msgb
+kubectl port-forward svc/mongodb-service 27017:27017 -n msgb
+kubectl port-forward svc/rabbitmq-service 5672:5672 -n msgb
 ```

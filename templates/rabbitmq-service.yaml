@@ -21,3 +21,4 @@ spec:
       port: {{ .Values.RabbitMQ.service.api.port }}
       targetPort: {{ .Values.RabbitMQ.service.api.targetPort }}
 {{- end}}
+

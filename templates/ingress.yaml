@@ -5,7 +5,7 @@ metadata:
   name: {{ .Values.Ingress.name }}
   namespace: {{ .Values.Namespace }}
   annotations:
-    nginx.ingress.kubernetes.io/proxy-body-size: 8m
+    nginx.ingress.kubernetes.io/proxy-body-size: {{ .Values.Ingress.body-size }}
 spec:
   ingressClassName: {{ .Values.Ingress.ingressClassName }}
   rules:
@@ -73,6 +73,19 @@ spec:
                 name: {{ .Values.RabbitMQ.name }}-service
                 port:
                   number: {{ .Values.RabbitMQ.service.api.targetPort }}
+    {{- end }}
+    #   Mongo-Api
+    {{- if .Values.Mongo.service.api.ingress.enable }}
+    - host: {{ .Values.Mongo.service.api.ingress.host }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend: 
+              service:
+                name: {{ .Values.Mongo.name }}-service
+                port:
+                  number: {{ .Values.Mongo.service.api.targetPort }}
     {{- end }}
 
 {{- end }}

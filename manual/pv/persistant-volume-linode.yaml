@@ -1,15 +1,33 @@
+
+# Minio PV
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: msgb-volume
-  namespace: msgb
+  name: msgb-minio-volume
   labels:
     type: local
 spec:
-  storageClassName: linode-block-storage-retain
+  storageClassName: linode-minio-pv
   capacity:
-    storage: 1Gi
+    storage: 2Gi
   accessModes:
     - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Recycle
+  hostPath:
+    path: "/mnt/data/minio"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: msgb-mongo-volume
+  labels:
+    type: local
+spec:
+  storageClassName: linode-mongo-pv
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Recycle
   hostPath:
     path: "/mnt/data"

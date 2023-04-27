@@ -49,6 +49,12 @@ spec:
               value: {{ .Values.RabbitMQ.creds.defaultUser }}
             - name: RMQ_CRED_KEY
               value: {{ .Values.RabbitMQ.creds.defaultPassword }}
+            - name: MONGO_SERV
+              value: $({{ print .Values.Mongo.name .Values.Mongo.service.suffix | upper | replace "-" "_" }}_SERVICE_HOST):$({{ print .Values.Mongo.name .Values.Mongo.service.suffix | upper | replace "-" "_" }}_SERVICE_PORT_{{ print .Values.Mongo.name .Values.Mongo.service.suffix .Values.Mongo.service.api.suffix | upper | replace "-" "_" }})
+            - name: MONGO_CRED_ID
+              value: {{ .Values.Mongo.creds.defaultUser }}
+            - name: MONGO_CRED_KEY
+              value: {{ .Values.Mongo.creds.defaultPassword }}
           ports:
             - containerPort: {{ .Values.GoApi.service.api.port }}
       volumes:

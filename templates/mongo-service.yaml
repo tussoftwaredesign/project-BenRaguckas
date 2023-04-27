@@ -1,0 +1,17 @@
+{{- if .Values.Mongo.service.enable }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.Mongo.name }}{{ .Values.Mongo.service.suffix }}
+  labels:
+    {{- include "bean-service-mesh.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.Mongo.service.type }}
+  selector:
+    app: {{ .Values.Mongo.name }}-selector
+  ports:
+    - name: {{ .Values.Mongo.name }}{{ .Values.Mongo.service.suffix }}{{ .Values.Mongo.service.api.suffix }}
+      protocol: {{ .Values.Mongo.service.api.protocol }}
+      port: {{ .Values.Mongo.service.api.port }}
+      targetPort: {{ .Values.Mongo.service.api.targetPort }}
+{{- end }}

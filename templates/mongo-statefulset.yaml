@@ -1,0 +1,42 @@
+{{- if .Values.Mongo.enable }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.Mongo.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "bean-service-mesh.labels" . | nindent 4 }}
+spec:
+  serviceName: {{ .Values.Mongo.name }}
+  replicas: {{ .Values.Mongo.replicaCount }}
+  selector:
+    matchLabels:
+      lbtype: broker
+  template:
+    metadata:
+      labels:
+        lbtype: broker
+        app: {{ .Values.Mongo.name }}-selector
+    spec:
+      containers:
+        - name: {{ .Values.Mongo.name }}
+          image: {{ .Values.Mongo.image }}
+          {{- if .LocalDev }}
+          imagePullPolicy: Never
+          {{- end}}
+          command:
+            - mongod
+            - "--bind_ip_all"
+          env:
+            - name:  MONGO_INITDB_ROOT_USERNAME
+              value: {{ .Values.Mongo.creds.rootUser }}
+            - name:  MONGO_INITDB_ROOT_PASSWORD
+              value: {{ .Values.Mongo.creds.rootPassword }}
+          ports:
+            - containerPort: {{ .Values.Mongo.service.api.port }}
+          volumes:
+            - name: {{ .Values.Mongo.name }}-volume
+              persistentVolumeClaim:
+                claimName: {{ .Values.Mongo.name }}-pvc
+                mountPath: /data/db
+{{- end }}
