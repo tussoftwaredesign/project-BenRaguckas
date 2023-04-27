@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
@@ -275,7 +276,13 @@ func restPostDefinedRouting(c *gin.Context, rout DefinedRouting) error {
 	}
 	// end
 	_ = routing_key
-	c.String(http.StatusOK, fmt.Sprintf("File put up for processing: \n\tbucket: %s\n\tkey: %s\n\tsize: %d", upload_info.Bucket, upload_info.Key, upload_info.Size))
+	responseObject := map[string]interface{}{
+		"bucket":    upload_info.Bucket,
+		"file_name": upload_info.Key,
+		"size":      upload_info.Size,
+	}
+	c.JSON(http.StatusOK, responseObject)
+	// c.String(http.StatusOK, fmt.Sprintf("File put up for processing: \n\tbucket: %s\n\tkey: %s\n\tsize: %d", upload_info.Bucket, upload_info.Key, upload_info.Size))
 	return nil
 }
 
@@ -313,12 +320,66 @@ func restTest(c *gin.Context, rout DefinedRouting) error {
 		c.Status(http.StatusInternalServerError)
 		return err
 	}
-	c.String(http.StatusOK, fmt.Sprintf("File put up for processing: \n\tbucket: %s\n\tkey: %s\n\tsize: %d", upload_info.Bucket, upload_info.Key, upload_info.Size))
+	responseObject := map[string]interface{}{
+		"bucket":    upload_info.Bucket,
+		"file_name": upload_info.Key,
+		"size":      upload_info.Size,
+	}
+	c.JSON(http.StatusOK, responseObject)
+	// c.String(http.StatusOK, fmt.Sprintf("File put up for processing: \n\tbucket: %s\n\tkey: %s\n\tsize: %d", upload_info.Bucket, upload_info.Key, upload_info.Size))
 	return nil
 }
 
-func restPostComplexProcess() {
+func restPostComplexProcess(c *gin.Context, rout CustomRouting) error {
+	// Get Form file
+	file, file_headers := getFormFile(c, rout.ObjectIdent)
+	if file == nil {
+		return errors.New("Failed to read file.")
+	}
 
+	// Push file and get uuid
+	upload_info, bucket_uuid, err := minioPushFile(file, file_headers)
+	if err != nil {
+		c.Status(http.StatusInternalServerError)
+		return err
+	}
+
+	// Hardcoded section should be fixed
+	teststring := c.PostForm(rout.RoutingIdent)
+	var routing []Queue
+	err = json.Unmarshal([]byte(teststring), &routing)
+	if err != nil {
+		c.Status(http.StatusInternalServerError)
+		return err
+	}
+
+	// Push info to mongo
+	meta_data := ProcessDefinition{
+		ID:           *bucket_uuid,
+		LastFilename: file_headers.Filename,
+		Routing:      routing,
+	}
+	_, err = mongoAddDetails(meta_data)
+	if err != nil {
+		c.Status(http.StatusInternalServerError)
+		return err
+	}
+
+	// RabbitMQues
+	body := rmqBodyBuild(*bucket_uuid, routing[0])
+	_, err = rmqBasicPublish(body, routing[0].Que)
+	if err != nil {
+		c.Status(http.StatusInternalServerError)
+		return err
+	}
+
+	responseObject := map[string]interface{}{
+		"bucket":    upload_info.Bucket,
+		"file_name": upload_info.Key,
+		"size":      upload_info.Size,
+	}
+	c.JSON(http.StatusOK, responseObject)
+	return nil
 }
 
 func restPutStageProcess() {
@@ -440,7 +501,13 @@ func simpPostItem(c *gin.Context, opts MethodOptions) {
 		c.Status(http.StatusBadRequest)
 		return
 	}
-	c.String(http.StatusOK, fmt.Sprintf("File put up for processing: \n\tbucket: %s\n\tkey: %s\n\tsize: %d", upload_info.Bucket, upload_info.Key, upload_info.Size))
+	responseObject := map[string]interface{}{
+		"bucket":    upload_info.Bucket,
+		"file_name": upload_info.Key,
+		"size":      upload_info.Size,
+	}
+	c.JSON(http.StatusOK, responseObject)
+	// c.String(http.StatusOK, fmt.Sprintf("File put up for processing: \n\tbucket: %s\n\tkey: %s\n\tsize: %d", upload_info.Bucket, upload_info.Key, upload_info.Size))
 }
 func simpPutItem(c *gin.Context, opts MethodOptions) {
 	bucket_id, err := uuid.Parse((*opts.PathParams)[0])
@@ -453,7 +520,13 @@ func simpPutItem(c *gin.Context, opts MethodOptions) {
 		c.Status(http.StatusBadRequest)
 		return
 	}
-	c.String(http.StatusOK, fmt.Sprintf("File put up for processing: \n\tbucket: %s\n\tkey: %s\n\tsize: %d", upload_info.Bucket, upload_info.Key, upload_info.Size))
+	responseObject := map[string]interface{}{
+		"bucket":    upload_info.Bucket,
+		"file_name": upload_info.Key,
+		"size":      upload_info.Size,
+	}
+	c.JSON(http.StatusOK, responseObject)
+	// c.String(http.StatusOK, fmt.Sprintf("File put up for processing: \n\tbucket: %s\n\tkey: %s\n\tsize: %d", upload_info.Bucket, upload_info.Key, upload_info.Size))
 }
 func simpPutItemNamed(c *gin.Context, opts MethodOptions) {
 	bucket_id, err := uuid.Parse((*opts.PathParams)[0])
@@ -469,7 +542,13 @@ func simpPutItemNamed(c *gin.Context, opts MethodOptions) {
 		c.Status(http.StatusBadRequest)
 		return
 	}
-	c.String(http.StatusOK, fmt.Sprintf("File put up for processing: \n\tbucket: %s\n\tkey: %s\n\tsize: %d", upload_info.Bucket, upload_info.Key, upload_info.Size))
+	responseObject := map[string]interface{}{
+		"bucket":    upload_info.Bucket,
+		"file_name": upload_info.Key,
+		"size":      upload_info.Size,
+	}
+	c.JSON(http.StatusOK, responseObject)
+	// c.String(http.StatusOK, fmt.Sprintf("File put up for processing: \n\tbucket: %s\n\tkey: %s\n\tsize: %d", upload_info.Bucket, upload_info.Key, upload_info.Size))
 }
 func simpListBuckets(c *gin.Context, opts MethodOptions) {
 	info, err := minioListBuckets()

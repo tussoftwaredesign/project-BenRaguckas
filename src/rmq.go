@@ -19,7 +19,7 @@ type BackendTask struct {
 	Src    string
 	Dst    string
 	Stat   string
-	Params *string
+	Params *json.RawMessage
 }
 
 // var rmq *amqp.Connection
@@ -109,7 +109,8 @@ func rmqBodyBuild(bucket_uuid uuid.UUID, que Queue) BackendTask {
 		Stat: strings.Replace(config.Def_apis.PostStatus, defApiBucketIdentifier, bucket_uuid.String(), -1),
 	}
 	// If Params are present
-	if que.Params != nil && *que.Params != "" {
+	// if que.Params != nil && *que.Params != "" {
+	if que.Params != nil {
 		body.Params = que.Params
 	}
 	return body

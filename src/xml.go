@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"encoding/xml"
 	"errors"
 	"fmt"
@@ -37,6 +38,7 @@ type CustomEndpoint struct {
 	Uri            CustomUri        `xml:"uri"`
 	SimpleFunction []SimpleFunction `xml:"simple-function"`
 	DefinedRouting *DefinedRouting  `xml:"pre-defined-routing,omitempty"`
+	CustomRouting  *CustomRouting   `xml:"user-defined-routing,omitempty"`
 }
 
 // Mapping URI object
@@ -61,13 +63,19 @@ type DefinedRouting struct {
 	Ques        []Queue  `xml:"queue"`
 }
 
+type CustomRouting struct {
+	XMLName      xml.Name `xml:"user-defined-routing"`
+	ObjectIdent  string   `xml:"object_identifier,attr"`
+	RoutingIdent string   `xml:"routing_identifier,attr"`
+}
+
 type Queue struct {
 	// XMLName xml.Name
-	Que    string  `xml:",chardata"`
-	Name   *string `xml:"name,attr"`
-	Input  *string `xml:"input,attr"`
-	Output *string `xml:"output,attr"`
-	Params *string `xml:"params"`
+	Que    string           `xml:",chardata"`
+	Name   *string          `xml:"name,attr"`
+	Input  *string          `xml:"input,attr"`
+	Output *string          `xml:"output,attr"`
+	Params *json.RawMessage `xml:"params"`
 }
 
 type MethodOptions struct {

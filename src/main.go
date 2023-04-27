@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin" // gin for rest api
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
@@ -107,6 +108,11 @@ func routerHandles() {
 	// Router
 	router := gin.Default()
 
+	// CORS
+	cors_conf := cors.DefaultConfig()
+	cors_conf.AllowOrigins = []string{"*"}
+	router.Use(cors.New(cors_conf))
+
 	//	Default Routing
 	// Basic put
 	router.Handle("PUT", config.Def_apis.PutItem, func(c *gin.Context) {
@@ -174,7 +180,7 @@ func routerHandles() {
 			})
 		} else { //	If not simple or custom do userDefined
 			router.POST(endpoint.Uri.Value, func(c *gin.Context) {
-				fmt.Println("USER ROUTING")
+				restPostComplexProcess(c, *e.CustomRouting)
 			})
 		}
 

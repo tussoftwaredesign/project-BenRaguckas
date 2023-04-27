@@ -39,18 +39,10 @@
         <simple-function method="GET" use_body="false">getItemNamed</simple-function>
         <simple-function method="PUT" use_body="true" body_items="file">putItemNamed</simple-function>
     </endpoint>
-
-    <endpoint>
-        <uri use_params="false">/gray</uri>
-        <pre-defined-routing object_identifier="file">
-            <queue>backgroundQ</queue>
-            <queue>grayoutQ</queue>
-        </pre-defined-routing>
-    </endpoint>
     
     <endpoint>
         <uri use_params="false">/testurl</uri>
-        <user-defined-routing />
+        <user-defined-routing object_identifier="file" routing_identifier="routing" />
     </endpoint>
 
     <endpoint>

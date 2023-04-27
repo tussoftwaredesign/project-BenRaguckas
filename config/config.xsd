@@ -63,6 +63,8 @@
 
     <xsd:complexType name="undefined">
         <xsd:sequence />
+        <xsd:attribute name="object_identifier" type="xsd:string" use="required"/>
+        <xsd:attribute name="routing_identifier" type="xsd:string" use="required"/>
     </xsd:complexType>
 
     <xsd:complexType name="queue-entry">
