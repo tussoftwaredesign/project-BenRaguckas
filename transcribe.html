@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="transcribe.js"> </script>
+    <script src="https://kit.fontawesome.com/bd11827ffc.js" crossorigin="anonymous"></script>
+    <script src=" https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js "></script>
+    <script src="https://www.w3schools.com/lib/w3codecolor.js"></script>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="transcribe.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoMesh image Demo</title>
+</head>
+<body>
+    <div class="centered-div">
+        <div id="file-picker">
+            <form action="/action_page.php" method="post">
+                <input id="file-input" type='file' onchange="readURL(this);" accept="video/mp4" />
+            </form>
+        </div>
+        <div id="main">
+            <div id="main-header">
+                <button type="button" id="reset-button" class="w3-button w3-indigo w3-round" onclick="reset()" >Reset <i class="fa-solid fa-rotate-left"></i></button>
+            </div>
+            <div id="input-display">
+                <video width="100%" controls>
+                    <source src="#" id="input-video">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+            <div id="main-divider"></div>
+            <div id="action">
+                <p>Select something: 
+                    <select name="audio" id="action-select" onchange="getOpt(this);" >
+                        <option value="audio" selected>Extract audio</option>
+                        <option value="audiot">Extract audio + Transcribe</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                    <button type="button" id="request-button" onclick="sendRequest()" class="w3-button w3-indigo w3-round">Process</button>
+                    <textarea id="custom-opts" class="w3-code"></textarea>
+                </p>
+            </div>
+            <div id="loading">
+                <div id="loading-log">
+                    <div id="loading-line">
+                        <div id="loading-text">
+                            <i id="loading-spinner" class="fas fa-spinner fa-spin"></i>
+                        </div>
+                        <div class="w3-light-grey">
+                            <div class="w3-green" id="loading-progress" style="width:0%;height:0.2em"></div>
+                        </div> 
+                    </div>
+                    <button type="button" id="log-toggle" onclick="toggleLogs()" >Show logs <i id="log-toggle-fa" class="fa-solid fa-arrow-down"></i></button>
+                </div>
+                <textarea id="log-block" readonly rows="20" class="w3-code"></textarea>
+            </div>
+            <div id="output">
+                <a id="output-download" href="#" download="test.jpg" class="w3-text-blue w3-large">Download file <i class="fa-solid fa-download"></i></a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

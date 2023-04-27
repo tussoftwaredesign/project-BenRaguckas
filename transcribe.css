@@ -1,0 +1,75 @@
+@media screen and (max-width: 800px) {
+    body {
+        font-size: 2.5vw;
+    }
+}
+body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(200, 200, 200, 1);
+}
+
+.centered-div {
+    max-width: 600px;
+    background-color: rgba(255, 255, 255, 1);
+    text-align: center;
+    padding: 1em;
+    box-shadow: 8px 8px 8px rgba(0, 0, 0, .4);;
+}
+
+#input-image, #output-image {
+    max-width: 100%;
+}
+
+#main, #output, #loading {
+    display: none;
+}
+
+#loading-line, #loading-text {
+    width: 75%;
+    text-align: left;
+    padding: 0.3em;
+}
+
+#loading-log {
+    overflow: hidden;
+}
+
+#loading-line {
+    float:left;
+}
+
+#log-block, #custom-opts {
+    min-width: 100%;
+    font-size: 0.7em;
+    font-family: 'Courier New', Courier, monospace;
+    resize: none;
+    height: 0;
+    transition: height 0.2s ease-out;
+    padding: 0 0;
+    overflow: hidden;
+    overflow-y: scroll;
+    box-sizing: border-box;
+    display: none;
+}
+
+#log-toggle {
+    float: right;
+    top: 1.3em;
+    position: relative;
+    width: 20%;
+    text-align: right;
+    background: none;
+    border: none;
+}
+
+#output, #input-display {
+    margin-top: 1em;
+}
+
+#loading-progress {
+    transition: width 0.5s ease-out;
+}
